@@ -1,0 +1,81 @@
+# Default "user default on nopass ~* &* +@all"
+# user redis_user on >398fs83r1va5 ~* &* -@all +get +set > /data-redis/users.acl
+# mkdir /data-redis/ && chown -R 1001:1001 /data-redis/
+
+version: '2'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  redis-master:
+    image: 'bitnami/redis:latest'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=Abc@12314455
+      - REDIS_REPLICA_PORT=6379
+      # - REDIS_ACLFILE=/opt/bitnami/redis/mounted-etc/users.acl
+    volumes:
+      # - /data-redis/users.acl:/opt/bitnami/redis/mounted-etc/users.acl
+      - /data-redis/redis-master:/bitnami/redis/data
+    networks:
+      - app-tier
+    ports:
+      - '6379'
+  redis-slave-0:
+    image: 'bitnami/redis:latest'
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis-master
+      - REDIS_MASTER_PORT_NUMBER=6379
+      - REDIS_MASTER_PASSWORD=Abc@12314455
+      - REDIS_REPLICA_PORT=6379
+      - REDIS_PASSWORD=Abc@12314455
+      # - REDIS_ACLFILE=/opt/bitnami/redis/mounted-etc/users.acl
+    volumes:
+      # - /data-redis/users.acl:/opt/bitnami/redis/mounted-etc/users.acl
+      - /data-redis/redis-slave-0:/bitnami/redis/data
+    ports:
+      - '6379'
+    depends_on:
+      - redis
+    networks:
+      - app-tier
+  redis-slave-1:
+    image: 'bitnami/redis:latest'
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis-master
+      - REDIS_MASTER_PORT_NUMBER=6379
+      - REDIS_MASTER_PASSWORD=Abc@12314455
+      - REDIS_REPLICA_PORT=6379
+      - REDIS_PASSWORD=Abc@12314455
+      # - REDIS_ACLFILE=/opt/bitnami/redis/mounted-etc/users.acl
+    volumes:
+      # - /data-redis/users.acl:/opt/bitnami/redis/mounted-etc/users.acl
+      - /data-redis/redis-slave-1:/bitnami/redis/data
+    ports:
+      - '6379'
+    depends_on:
+      - redis
+    networks:
+      - app-tier
+  redis-sentinel:
+    image: 'bitnami/redis-sentinel:latest'
+    environment:
+      - REDIS_MASTER_HOST=redis-master
+      # - REDIS_MASTER_PORT_NUMBER=6379
+      - REDIS_MASTER_SET=master-sentinel
+      - REDIS_MASTER_PASSWORD=Abc@12314455
+      - REDIS_SENTINEL_QUORUM=2
+      - REDIS_SENTINEL_PASSWORD=Abc@12314455
+    depends_on:
+      - redis-master
+      - redis-slave-0
+      - redis-slave-1
+    ports:
+      - '26379-26381:26379'
+    networks:
+      - app-tier
+
