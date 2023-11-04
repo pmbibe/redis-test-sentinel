@@ -1,0 +1,106 @@
+version: '2'
+
+networks:
+  redis-cluster:
+    driver: bridge
+
+services:
+  redis-node-0:
+    image: bitnami/redis-cluster
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5'
+      # - 'REDIS_PASSWORD=Abc@12314455'
+      # - REDIS_ACLFILE=/opt/bitnami/redis/mounted-etc/users.acl
+    # volumes:
+      # - /data-redis/users.acl:/opt/bitnami/redis/mounted-etc/users.acl
+      # - /data-redis/redis-node-0:/bitnami/redis/data
+    networks:
+      - redis-cluster
+    ports:
+      - '6379'
+  redis-node-1:
+    image: bitnami/redis-cluster
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5'
+      # - 'REDIS_PASSWORD=Abc@12314455'
+      # - REDIS_ACLFILE=/opt/bitnami/redis/mounted-etc/users.acl
+    # volumes:
+      # - /data-redis/users.acl:/opt/bitnami/redis/mounted-etc/users.acl
+      # - /data-redis/redis-node-1:/bitnami/redis/data
+
+    networks:
+      - redis-cluster
+    ports:
+      - '6379'
+  redis-node-2:
+    image: bitnami/redis-cluster
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5'
+      # - 'REDIS_PASSWORD=Abc@12314455'
+      # - REDIS_ACLFILE=/opt/bitnami/redis/mounted-etc/users.acl
+    # volumes:
+      # - /data-redis/users.acl:/opt/bitnami/redis/mounted-etc/users.acl
+      # - /data-redis/redis-node-2:/bitnami/redis/data
+
+    networks:
+      - redis-cluster
+    ports:
+      - '6379'
+  redis-node-3:
+    image: bitnami/redis-cluster
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5'
+      # - 'REDIS_PASSWORD=Abc@12314455'
+      # - REDIS_ACLFILE=/opt/bitnami/redis/mounted-etc/users.acl
+    # volumes:
+      # - /data-redis/users.acl:/opt/bitnami/redis/mounted-etc/users.acl
+      # - /data-redis/redis-node-3:/bitnami/redis/data
+
+    networks:
+      - redis-cluster
+    ports:
+      - '6379'
+  redis-node-4:
+    image: bitnami/redis-cluster
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5'
+      # - 'REDIS_PASSWORD=Abc@12314455'
+      # - REDIS_ACLFILE=/opt/bitnami/redis/mounted-etc/users.acl
+    # volumes:
+      # - /data-redis/users.acl:/opt/bitnami/redis/mounted-etc/users.acl
+      # - /data-redis/redis-node-4:/bitnami/redis/data
+
+    networks:
+      - redis-cluster
+    ports:
+      - '6379'   
+  redis-node-5:
+    image: bitnami/redis-cluster
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5'
+      - 'REDIS_CLUSTER_CREATOR=yes'
+      # - 'REDIS_PASSWORD=Abc@12314455'
+      - 'REDIS_CLUSTER_REPLICAS=1'
+      # - 'REDISCLI_AUTH=Abc@12314455'
+      # - REDIS_ACLFILE=/opt/bitnami/redis/mounted-etc/users.acl
+    # volumes:
+      # - /data-redis/users.acl:/opt/bitnami/redis/mounted-etc/users.acl
+      # - /data-redis/redis-node-5:/bitnami/redis/data
+
+    networks:
+      - redis-cluster
+    ports:
+      - '6379:6379'               
+    depends_on:
+      - redis-node-0
+      - redis-node-1
+      - redis-node-2
+      - redis-node-3
+      - redis-node-4                      
+
