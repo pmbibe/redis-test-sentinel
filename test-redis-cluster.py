@@ -1,5 +1,7 @@
 import re
 import subprocess
+import argparse
+import sys
 
 def get_cluster_nodes():
     nodes_info = subprocess.Popen('docker container ls -a', stdout=subprocess.PIPE).stdout.read()
@@ -83,14 +85,52 @@ def list_all_node_status(info):
             details, err = get_cluster_info(node_id)
             if not err:
                 ip, cluster_node_id, cluster_node_master, fail_ips, fail_cluster_nodes_id = get_ip_role_nodes(details)
-                print("Container ID: {} Node IP: {} Node ID: {} Master of Node: {}".format(node_id, ip, cluster_node_id, cluster_node_master))
+                print("Container ID: {} Node IP: {} Node ID: {} Master: {}".format(node_id, ip, cluster_node_id, cluster_node_master))
     print("----------------Node Down----------------")
     for i in range(len(fail_ips)):
         print("Node IP: {} Node ID: {}".format(fail_ips[i], fail_cluster_nodes_id[i]))
 
+def write_data(node_id, key, value):
+    write = subprocess.Popen("docker exec -it {} redis-cli -c set {} {}".format(node_id, key, value), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    write_output = write.stdout.read().decode('utf-8').split("\n")
+    write_err = write.stderr.read().decode('utf-8').split("\n")[0]
+    if not write_err: return True
+    return False
+
+def read_data(node_id, key):
+    read = subprocess.Popen("docker exec -it {} redis-cli -c get {}".format(node_id, key), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    read_output = read.stdout.read().decode('utf-8').split("\n")
+    read_err = read.stderr.read().decode('utf-8').split("\n")[0]  
+    if not read_err: return read_output
+    return False
 if __name__ == "__main__":
     info = get_cluster_nodes()
-    # print(test_is_cluster_initiated(info))
-    fail_ips = []
-    fail_cluster_nodes_id = []
-    list_all_node_status(info)
+    parser = argparse.ArgumentParser(description='Option')
+    subparsers = parser.add_subparsers(title='GET/SET REDIS',
+                                   description='GET/SET REDIS')
+    parser_get=subparsers.add_parser('get')
+    parser_get.add_argument('--key')
+    parser_get.add_argument('--container-id')
+    parser_set=subparsers.add_parser('set')
+    parser_set.add_argument('--key')
+    parser_set.add_argument('--value')
+    parser_set.add_argument('--container-id')
+    subparsers.add_parser('test-cluster')
+    subparsers.add_parser('cluster-info')
+    try:
+        args = parser.parse_args()
+        container_id = args.container_id
+        key = args.key
+        value = args.value
+    except:
+        pass
+    if sys.argv[1] == "set":
+        if write_data(container_id, key, value): print('Success')
+    if sys.argv[1] == "get":
+        if read_data(container_id, key): print(read_data(container_id, key)[0])
+    if sys.argv[1] == "test-cluster":
+        print(test_is_cluster_initiated(info))
+    if sys.argv[1] == "cluster-info":
+        fail_ips = []
+        fail_cluster_nodes_id = []
+        list_all_node_status(info)
