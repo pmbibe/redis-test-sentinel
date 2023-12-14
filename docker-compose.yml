@@ -39,7 +39,7 @@ services:
     ports:
       - '6379'
     depends_on:
-      - redis
+      - redis-master
     networks:
       - app-tier
   redis-slave-1:
@@ -58,7 +58,7 @@ services:
     ports:
       - '6379'
     depends_on:
-      - redis
+      - redis-master
     networks:
       - app-tier
   redis-sentinel:
@@ -78,4 +78,3 @@ services:
       - '26379-26381:26379'
     networks:
       - app-tier
-
